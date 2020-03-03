@@ -8,14 +8,9 @@
 #  This software is distributed under the 3-clause BSD License.
 #  ___________________________________________________________________________
 
-
-"""
-Notes. Delete later
-"""
 from __future__ import division
 
 _using_chained_inequality = True
-
 import logging
 import traceback
 
@@ -517,6 +512,7 @@ else:
 
 class LogicalExpressionBase(LogicalValue):
     """
+    Note: what about the part above(some functions used in logical expressions)
     Logical expressions base expression.
 
     This class is used to define nodes in an expression
@@ -528,7 +524,6 @@ class LogicalExpressionBase(LogicalValue):
         args (list or tuple): Children of this node.
     """
 
-    # 0-0 do we need this and used this new base for the expressions above?
     __slots__ =  ('_args_',)
     PRECEDENCE = 10
 
@@ -545,7 +540,6 @@ class LogicalExpressionBase(LogicalValue):
         return 2
 
     def args(self, i):
-        #0-0
         """
         Return the i-th child node.
 
@@ -559,7 +553,6 @@ class LogicalExpressionBase(LogicalValue):
             raise KeyError("Invalid index for expression argsument: %d" % i)
         if i < 0:
             return self._args_[self.nargs()+i]
-            #0-0 send a warning?
         return self._args_[i]
 
     @property
@@ -588,7 +581,6 @@ class LogicalExpressionBase(LogicalValue):
     def __call__(self, exception=True):
         """
         Evaluate the value of the expression tree.
-        #0-0 leave it for now
         args:
             exception (bool): If :const:`False`, then
                 an exception raised while evaluating
@@ -603,7 +595,6 @@ class LogicalExpressionBase(LogicalValue):
     def __str__(self):
         """
         Returns a string description of the expression.
-        #leave it for now
         Note:
             The value of ``pyomo.core.expr.expr_common.TO_STRING_VERBOSE``
             is used to configure the execution of this method.
@@ -620,7 +611,6 @@ class LogicalExpressionBase(LogicalValue):
     def to_string(self, verbose=None, labeler=None, smap=None, compute_values=False):
         """
         Return a string representation of the expression tree.
-        #leave it for now
         args:
             verbose (bool): If :const:`True`, then the the string
                 representation consists of nested functions.  Otherwise,
@@ -644,18 +634,16 @@ class LogicalExpressionBase(LogicalValue):
 
     def _associativity(self):
         """Return the associativity of this operator.
-
+        Note: not sure if we want to do more about this one.
         Returns 1 if this operator is left-to-right associative or -1 if
         it is right-to-left associative.  Any other return value will be
         interpreted as "not associative" (implying any argsuments that
         are at this operator's _precedence() will be enclosed in parens).
         """
-        #0-0 do we need this?
         return 1
 
     def _to_string(self, values, verbose, smap, compute_values):            #pragma: no cover
         """
-        #0-0 pass for now
         Construct a string representation for this node, using the string
         representations of its children.
 
@@ -791,9 +779,6 @@ class LogicalExpressionBase(LogicalValue):
 
     def _is_fixed(self, values):
         """
-
-        # 0-0 leave it for now?
-
         Compute whether this expression is fixed given
         the fixed values of its children.
 
@@ -866,11 +851,7 @@ class LogicalExpressionBase(LogicalValue):
             nodes in the expression tree.
         """
         return sizeof_expression(self)
-
-    #def polynomial_degree(self):
-    #not needed for logical expresion
-    #def _compute_polynomial_degree(self, values):                          #pragma: no cover
-
+    
 
     def _apply_operation(self, result):     #pragma: no cover
         """
@@ -908,36 +889,62 @@ class LogicalExpressionBase(LogicalValue):
     The following are nodes creators that should be used to create
     new nodes properly.
     """
-        
+    
+    
     #NotExpression Creator
+    """
+    Note: what do we do about these comments?
+    Also is the documentation below ok? Need quotation mark? change wording?
+    """
     def __invert__(self):
+        """
+        Construct a NotExpression using operation '~'
+        """
         return NotExpression(self)
 
 
     #EquivalanceExpression Creator
     def __eq__(self, other):
+        """
+        Construct an EquivalenceExpression using operation '=='
+        """
         return EquivalanceExpression(self, other)
 
     def equals(self, other):
+        """
+        Construct an EquivalenceExpression using method "equals"
+        """
         return EquivalanceExpression(self, other)
 
     #XorExpression Creator
     def __xor__(self, other):
+        """
+        Construct an XorExpression using operation '^'
+        """
         return XorExpression(self, other)
 
     def Xor(self, other):
+        """
+        Construct an EquivalenceExpression using method "Xor"
+        """
         return XorExpression(self, other)
 
     def xor(self, other):
+        """
+        A common typo to expect, see error message
+        """
         raise NameError("Please use Xor instead.")
 
     def implies(self, other):
         return Implication(self, other)
 
     #AndExpressionCreator
-    #Create a new node iff neither node is an AndNode
-    #If we have an "AndNode" already, safe_add new node to the exisiting one.
     def __and__(self, other):
+        """
+        Construct an AndExpression using operation '&'
+        Create a new node iff neither node is an AndNode
+        If we have an "AndNode" already, safe_add new node to the exisiting one.
+        """
         if (self.getname() != "AndExpression"):  
             if (other.getname() != "AndExpression"):
                 #return AndExpression(set([self, other])) #set version
@@ -952,6 +959,7 @@ class LogicalExpressionBase(LogicalValue):
 
     #class method for AndExpression,basically the same logic as above
     '''
+    Note: delete this?
     #This section is documented just in case the class method is needed
     #in the future
     def LogicalAnd(self, other):
@@ -974,6 +982,11 @@ class LogicalExpressionBase(LogicalValue):
     #OrExpressionCreator
     #Create a new node iff neither node is an OrNode
     def __or__(self, other):
+        """
+        Construct an OrExpression using operation '|'
+        Create a new node iff neither node is an AndNode
+        If we have an "OrNode" already, safe_add the new node to the exisiting one.
+        """
         if (self.getname() != "OrExpression"):  
             if (other.getname() != "OrExpression"):
                 #return OrExpression(set([self, other])) #set version
@@ -1014,19 +1027,31 @@ do the exact same thing as the class methods as well as overloaded operators.
 """
 
 # static method for NotExpression creator 
-def Not(self):
-    return NotExpression(self)
+def Not(arg):
+    """
+    Construct a NotExpression using function"
+    """
+    return NotExpression(arg)
 
 # static method for EquivalenceExpression creator 
 def Equivalence(arg1, arg2):
+    """
+    Construct an EquivalenceExpression using function
+    """
     return EquivalenceExpression(arg1, arg2) 
 
 # static method for XorExpression creator
 def LogicalXor(arg1, arg2):
+    """
+    Construct an XorExpression using function
+    """
     return XorExpression(arg1, arg2)
 
-# 0-0 add a static method for impies>
+
 def Implies(arg1, arg2):
+    """
+    Construct an Implication using function, where arg1 implies arg2
+    """
     return Implication(arg1, arg2)
 
 # static method for AndExpression creator
@@ -1034,10 +1059,13 @@ def Implies(arg1, arg2):
 
 #combine 2 function and name it And()
 def LogicalAnd(*argv):
-    # 0-0 Do we need to take care of the safety of this method?
-    # argsList is a set of LogicalValues, RaiseError if not?
-    # checking requires a full loop from my understanding
-    # Do we need to take care of empty set of set with length 1?
+    """
+    Note: we may need further testing if we want some properties to hold
+    for example: preserving order.
+    Construct an AndExpression using function
+    Create a new node iff neither node is an AndNode
+    If we have an "AndNode" already, safe_add new node to the exisiting one.
+    """
     argsList = list(argv)
     parent = argsList[0]
     for tmp in argsList:
@@ -1058,6 +1086,12 @@ def LogicalAnd(*argv):
 # create a new node iff neither node is an OrNode, same logic
 
 def LogicalOr(*argv):
+    """
+    Note: same as above
+    Construct an OrExpression using function
+    Create a new node iff neither node is an AndNode
+    If we have an "OrNode" already, safe_add new node to the exisiting one.
+    """
     argsList = list(argv)
     parent = argsList[0]
     for tmp in argsList:
@@ -1079,16 +1113,34 @@ def LogicalOr(*argv):
 # static Method for ExactlyExpression, AtMostExpression and AtLeastExpression
 # make it support tuples?
 def Exactly(req, argsList):
+    """
+    Note: same as above, also do we need to put the type of input in the documentation?
+    Construct an ExactlyExpression using function
+    req specifices the number of arguments that need to be true to make the expression true
+    argsList is a list of logical expressions
+    """
     result = ExactlyExpression(list(argsList))
     result._args_.insert(0, req)
     return result
 
 def AtMost(req, argsList):
+    """
+    Note: same as above
+    Construct an AtMostExpression using function
+    req specifices the maximum number of arguments that can be true to make the expression true
+    argsList is a list of logical expressions
+    """
     result = AtMostExpression(list(argsList))
     result._args_.insert(0, req)
     return result
 
 def AtLeast(req, argsList):
+    """
+    Note: same as above
+    Construct an AtLeastExpression using function
+    req specifices the minimum number of arguments that need to be true to make the expression true
+    argsList is a list of logical expressions
+    """
     result = AtLeastExpression(list(argsList))
     result._args_.insert(0, req)
     return result
@@ -1100,48 +1152,50 @@ def AtLeast(req, argsList):
 
 class UnaryExpression(LogicalExpressionBase):
     """ 
+    Note: Not sure how many functions here should be documented as they're functions
+    that the clients should not use.
     An abstract class for NotExpression
     There should only be one child under this kind of nodes
     This class should never be created directly. 
-    #0-0
-    This is the tempting naming. "args" should be one subclass of UnaryExpression,
-    BinaryExperssion or MultiNodesExpression.
     """
 
     __slots__ = ("_args_",)
 
     """
-    #0-0
+    Note: we seem to need a test for precedence check here for every expressions below
     The precedence of an abstract class should not be a concern here, so it will be set
     to zero for now.
     """
     def __init__(self, args):
         self._args_ = args
-        #print("The variable is initialized using UnaryExpression")
-        #for tracing purpose only, delete later.
-        #0-0 
 
     PRECEDENCE = 10
 
     def nargs(self):
+        """
+        Note: ok like this? same below
+        Return the number of argument the expression has
+        """
         return 1
 
     def getname(self, *arg, **kwd):
+        """
+        Return the name of the expression
+        """
         return 'UnaryExpression'
 
     def _precedence(self):
         return UnaryExpression.PRECEDENCE
 
     def _to_string(self, values, verbose, smap, compute_values):
-        #question: how should this one work in general, though this function should not
-        #be called ever imo. 
-        #fine to raise this error?
         raise NotImplementedError("Derived expression (%s) failed to "\
                 "implement _apply_operation()" % ( str(self.__class__), ))
 
     def _apply_operation(self):
+        """
+        Not, change this?
+        """
         raise TypeError("Please use Notexpression instead.")
-        #0-0 ok to do this?
         
 
 
@@ -1151,12 +1205,16 @@ class NotExpression(UnaryExpression):
         """
 
         __slots__ = ()
-
+        
+        """
+        Note: Is this precedence appropriate?
+        """
         PRECEDENCE = 1
-        #This operation should have the highest precedence among all, for now 
-        #use 10 and adjust that later 0-0
-
+        
         def getname(self, *arg, **kwd):
+            """
+            Return the name of the expression
+            """
             return 'NotExpression'
 
         def _precendence(self):
@@ -1168,6 +1226,7 @@ class NotExpression(UnaryExpression):
 
         def _apply_operetion(self, result):
             """
+            Note: keep this?
             result should be a tuple in general
             """
             return not result
@@ -1177,38 +1236,35 @@ class BinaryExpression(LogicalExpressionBase):
     The abstract class for binary expression. This class should never be initialized.
     with __init__ .  largs and rargs are tempting names for its child nodes.
     """
-    #0-0 changed larg and rarg to args
+    
     __slots__ = ("_args_",)
 
     def __init__(self, larg, rarg):
         self._args_ = list([larg, rarg])
-        #
-        #print("The variable is initialized using BinaryExpression")
-        #for tracing purpose only, delete later.
-        #0-0 
 
     PRECEDENCE = 10
-    #As this class should never be used in practice.
 
     def nargs(self):
+        """
+        Return the number of argument the expression has
+        """
         return 2
 
     def getname(self, *arg, **kwd):
+        """
+        Return the name of the expression
+        """
         return 'BinaryExpression'
 
     def _precedence(self):
         return BinaryExpression.PRECEDENCE
 
     def _to_string(self, values, verbose, smap, compute_values):
-        #question: how should this one work in general, though this function should not
-        #be called ever imo. 
-        #fine to raise this error?
         raise NotImplementedError("Derived expression (%s) failed to "\
                 "implement _apply_operation()" % ( str(self.__class__), ))
 
     def _apply_operation(self):
         raise TypeError("Please use the approriate binary expression instead.")
-        #0-0 fine like this?
 
 
 
@@ -1221,23 +1277,24 @@ class EquivalenceExpression(BinaryExpression):
         __slots__ = ()
 
         PRECEDENCE = 7
-        #0-0 not really sure... Is there a reference I can use?
 
         def getname(self, *arg, **kwd):
+            """
+            Return the name of the expression
+            """
             return 'EquivalanceExpression'
 
         def _precendence(self):
             return EquivalanceExpression.PRECEDENCE
 
         def _to_string(self, values, verbose, smap, compute_values):
-            #pass this one for now 0-0
+            """
+            Note: this one needs to be implemented
+            """
             pass
 
-        #change it to (self, result):
         def _apply_operation(self, resList):
-            """
-            #0-0 safety check?
-            """
+
             return (resList[0] == resList[1])
 
 
@@ -1249,16 +1306,20 @@ class XorExpression(BinaryExpression):
         __slots__ = ()
 
         PRECEDENCE = 6
-        #0-0 same as above
 
         def getname(self, *arg, **kwd):
+            """
+            Return the name of the expression
+            """
             return 'XorExpression'
 
         def _precendence(self):
             return XorExpression.PRECEDENCE
 
         def _to_string(self, values, verbose, smap, compute_values):
-            #pass this one for now 0-0
+            """
+            Note: this one needs to be implemented
+            """
             return "XorExpression_toString_fornow"
 
         def _apply_operation(self,resList):
@@ -1272,21 +1333,26 @@ class XorExpression(BinaryExpression):
 class Implication(BinaryExpression):
         """
         This is the node for Implication, this node should have exactly two children
+        In this expression, the first argument implies the second argument
         """
 
         __slots__ = ()
 
         PRECEDENCE = 4
-        #0-0 same as above
 
         def getname(self, *arg, **kwd):
+            """
+            Return the name of the expression
+            """
             return 'Implication'
 
         def _precendence(self):
             return XorExpression.PRECEDENCE
 
         def _to_string(self, values, verbose, smap, compute_values):
-            #pass this one for now 0-0
+            """
+            Note: this one needs to be implemented
+            """
             return "Implication_toString_fornow"
 
         def _apply_operation(self,resList):
@@ -1296,39 +1362,35 @@ class Implication(BinaryExpression):
 class MultiArgsExpression(LogicalExpressionBase):
     """
     The abstract class for MultiargsExpression. This class should never be initialized.
-    with __init__ .  args is a tempting name.
     """
-
-    #args should be a set from Romeo's prototype
-
+    
     __slots__ = ("_args_")
 
     def __init__(self, ChildList):
-        #self._args_ =  list([v for v in ChildList]) #if we want the set version
         self._args_ =  list([v for v in ChildList])
 
     PRECEDENCE = 10
-    #As this class should never be used in practice.
 
     def nargs(self):
+        """
+        Return the number of functions of the expression
+        """
         return len(self._args_)
 
     def getname(self, *arg, **kwd):
+        """
+        Return the name of the expression
+        """
         return 'MultiArgsExpression'
 
     def _add(self, other):
-        #a private method that adds another logicalexpression into this node
-        #add elements into the list,while not creating a node if they share the same type
-        #Always use this safe_add to add elements into a multinode
-        '''
-        #set version
-        if (other.getname() != self.getname()):
-            self._args_.add(other)
-        else:
-            self._args_.update(other._args_)
-            #should we remove other in some way here?
-        '''
-        #list version
+        """
+        Note: ok like this? 
+        This is a private method and should be used for AndExpression and OrExpression only
+        A method that adds another logicalexpression into this node
+        Add elements into the list,while not creating a node if they share the same type
+        Always use this safe_add to add elements into a multinode
+        """
         if (type(other) != type(self)):
             self._args_.append(other)
         else:
@@ -1338,9 +1400,6 @@ class MultiArgsExpression(LogicalExpressionBase):
         return MultiargsExpression.PRECEDENCE
 
     def _to_string(self, values, verbose, smap, compute_values):
-        #question: how should this one work in general, though this function should not
-        #be called ever imo. 
-        #fine to raise this error?
         raise NotImplementedError("Derived expression (%s) failed to "\
                 "implement _apply_operation()" % ( str(self.__class__), ))
 
@@ -1351,8 +1410,6 @@ class MultiArgsExpression(LogicalExpressionBase):
 class AndExpression(MultiArgsExpression):
     """
     This is the node for AndExpression.
-    For coding only, given that AndExpression should have & as the
-    overloaded operator, it is necessary to perform a check. 
     """
 
     __slots__ = ()
@@ -1360,6 +1417,9 @@ class AndExpression(MultiArgsExpression):
     PRECEDENCE = 2
 
     def getname(self, *arg, **kwd):
+        """
+        Return the name of the expression
+        """
         return 'AndExpression'
 
     def _precendence(self):
@@ -1369,6 +1429,9 @@ class AndExpression(MultiArgsExpression):
         return " AND ".join(values)
 
     def _apply_operation(self, result):
+        """
+        Note: how important is this check?
+        """
         if (len(self._args_) != len(result)):
             KeyError("Make sure number of truth values matches number"\
              "of children for this node")
@@ -1376,23 +1439,29 @@ class AndExpression(MultiArgsExpression):
 
 
 class OrExpression(MultiArgsExpression):
+    """
+    This is the node for AndExpression.
+    """
     __slots__ = ()
 
     PRECEDENCE = 3
 
     def getname(self, *arg, **kwd):
+        """
+        Return the name of the expression
+        """
         return 'OrExpression'
 
     def _precendence(self):
         return OrExpression.PRECEDENCE
 
     def _to_string(self, values, verbose, smap, compute_values):
-        #pass this one for now 0-0
+        """
+        This Expression needs to be implemented
+        """
         return "OrExpression_toString_fornow"
 
     def _apply_operation(self, result):
-        """
-        """
         if (len(self._args_) != len(result)):
             raise KeyError("Make sure number of truth values matches number"\
              "of children for this node")
@@ -1400,14 +1469,22 @@ class OrExpression(MultiArgsExpression):
 
 
 
-'''for Exactly, ...
-'''
 class ExactlyExpression(MultiArgsExpression):
+    """
+    Note: like before, specify type?
+    And in general, we need more basic tests here
+    This is an ExactlyExpression
+    The first element of its _args_ the number of arguments that need to be true to make the expression true
+    The rest are logical expressions
+    """
     __slots__ = ()
 
     PRECEDENCE = 8
 
     def getname(self, *arg, **kwd):
+        """
+        Return the name of the expression
+        """
         return 'ExactlyExpression'
 
     def _precendence(self):
@@ -1421,12 +1498,15 @@ class ExactlyExpression(MultiArgsExpression):
         if (len(self._args_)-1 != len(result)):
             KeyError("Make sure number of truth values matches number"\
              "of children for this node")
-        #0-0 Had some logic error here, is this fine now
-
         return sum(result) == 2 * self._args_[0]
 
 
 class AtMostExpression(MultiArgsExpression):
+    """
+    This is an ExactlyExpression
+    The first element of its _args_ the maximum number of arguments to be true to make the expression true
+    The rest are logical expressions
+    """
     __slots__ = ()
 
     PRECEDENCE = 8
@@ -1438,7 +1518,9 @@ class AtMostExpression(MultiArgsExpression):
         return AtMostExpression.PRECEDENCE
 
     def _to_string(self, values, verbose, smap, compute_values):
-        #pass this one for now 0-0
+        """
+        Note: This expression needs to be implemented
+        """
         return "AtMostExpression_toString_fornow"
 
     def _apply_operation(self, res_list):
@@ -1454,18 +1536,28 @@ class AtMostExpression(MultiArgsExpression):
         
 
 class AtLeastExpression(MultiArgsExpression):
+    """
+    This is an ExactlyExpression
+    The first element of its _args_ the minimum number of arguments to be true to make the expression true
+    The rest are logical expressions
+    """
     __slots__ = ()
 
     PRECEDENCE = 8
 
     def getname(self, *arg, **kwd):
+        """
+        Return the name of the expression
+        """
         return 'AtLeastExpression'
 
     def _precendence(self):
         return AtLeastExpression.PRECEDENCE
 
     def _to_string(self, values, verbose, smap, compute_values):
-        #pass this one for now 0-0
+        """
+        Note: This needs to be implemented
+        """
         return "AtLeastExpression_toString_fornow"
 
     def _apply_operation(self, res_list):
@@ -1477,14 +1569,6 @@ class AtLeastExpression(MultiArgsExpression):
             if(tmp == True):
                 counter += 1
         return (counter <= self._args_[0])
-
-'''        
-Expressions = (LogicalExpressionBase, NotExpression, AndExpression, OrExpression,
-    Implication, EquivalenceExpression, XorExpression, ExactlyExpression,
-    AtMostExpression, AtLeastExpression, Not, Equivalence, LogicalOr, Implies,
-    LogicalAnd, Exactly, AtMost, AtLeast, LogicalXor
-    )
-'''
 
 
 

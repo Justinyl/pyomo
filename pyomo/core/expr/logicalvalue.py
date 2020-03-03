@@ -37,6 +37,7 @@ def _generate_relational_expression(etype, lhs, rhs):
 ##------------------------------------------------------------------------
 '''
 class NonLogicalValue(object):
+    Note: still need this?
     """An object that contains a non-logical value
 
     Constructor Arguments:
@@ -85,9 +86,8 @@ def RegisterLogicalType(new_type):
     #nonpyomo_leaf_types.add(new_type)
 
 def value(obj, exception=True):
-    #0-0 Thinkng about a way to make it work
     """
-
+    Note: delete comment?
     Returns: A numeric value or None.
     """
    
@@ -118,13 +118,7 @@ def value(obj, exception=True):
             raise TypeError(
                 "Cannot evaluate object with unknown type: %s" %
                 (type(obj).__name__,))
-    #
-    # Evaluate the expression object
-    #
     if exception:
-        #
-        # Here, we try to catch the exception
-        #
         try:
             tmp = obj(exception=True)
             if tmp is None:
@@ -343,14 +337,12 @@ def check_if_logical_type_and_cache(obj):
 #the following is a logical version for Logical value
 
 class LogicalValue(object):
-    #an abstract class 
-    #
-    #__slots__ = ('value',)
+    """
+    This is the base class for logical values used in Pyomo.
+    """
     __slots__ = ()
     __hash__ = None
     def __getstate__(self):
-    #delete the docs for an identation error
-    #0-0
         _base = super(LogicalValue, self)
         if hasattr(_base, '__getstate__'):
             return _base.__getstate__()
@@ -424,7 +416,6 @@ class LogicalValue(object):
         """Return True if this Logical value is a named expression"""
         return False
 
-    #what do we about this
     def is_expression_type(self):
         """Return True if this Logical value is an expression"""
         return False
@@ -471,8 +462,7 @@ class LogicalValue(object):
         arguments to one of the Python built-in math module functions when
         defining expressions. Avoid this error by using Pyomo-provided math
         functions.""" % (self.name,))
-
-    #tbc    
+   
     def __lt__(self,other):
         """
         Less than operator
@@ -513,11 +503,8 @@ class LogicalValue(object):
         """Unable to do comparison between logical values. Avoid this error by
         using boolean variable.""")
 
-    #tbd
     def __eq__(self,other):
-        
-
-        #return Equivalence_expression(self,other)
+        "Note: should I follow suit from the previous block?"
         raise TypeError("""This function should not be called. Avoid this error by using
             logical expressions intead of logical values""")
         return True
@@ -768,7 +755,6 @@ class LogicalValue(object):
         """Unable to take absolute of a logical value. Avoid this error by
         using boolean variable.""")
 
-    # 0-0
     def to_string(self, verbose=None, labeler=None, smap=None,
                   compute_values=False):
         """
@@ -807,9 +793,7 @@ class LogicalConstant(LogicalValue):
 
     __slots__ = ('value',)
 
-    #0-0 impose restriction on initialization?
     def __init__(self, value):
-        #fine like this?
         if value not in native_logical_values:
             raise TypeError('Not a valid LogicalValue. Unable to create a logical constant')
         self.value = value
@@ -825,14 +809,13 @@ class LogicalConstant(LogicalValue):
 
     def is_fixed(self):
         return True
-
+    "Note: what about this?"
     #def is_potentially_variable(self):
     #    return False
 
     def __str__(self):
         return str(self.value)
 
-    #RaiseTypeError ("value of x?")    
     def __nonzero__(self):
         raise ValueError("Do you mean value of this logical constant : '%s'"
             % (self.name,))
