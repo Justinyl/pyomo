@@ -37,7 +37,7 @@ class TestMindtPy(unittest.TestCase):
         """Test the outer approximation decomposition algorithm."""
         with SolverFactory('mindtpy') as opt:
             model = EightProcessFlowsheet()
-            print('\n Solving 8PP problem with Outer Approximation')
+            print('\n Solving 8PP problem with Outer Approximation.')
             results = opt.solve(model, strategy='OA',
                                 init_strategy='rNLP',
                                 mip_solver=required_solvers[1],
